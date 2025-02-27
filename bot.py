@@ -1,6 +1,18 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, CallbackContext
 from io import BytesIO
+from flask import Flask  # Добавляем импорт Flask
+from threading import Thread  # Импорт для запуска Flask в фоновом режиме
+
+app_flask = Flask(__name__)
+
+@app_flask.route('/')
+def home():
+    return "Бот работает!", 200  # Простой маршрут для проверки, что приложение Flask работает
+
+def run_flask():
+    app_flask.run(host="0.0.0.0", port=8080)  # Запуск Flask-приложения на порту 8080
+
 
 TOKEN = "7909781824:AAHi_E5sHVk9n2HwbWUH2rE0AYKLPkL50A8"
 
@@ -25,13 +37,6 @@ user_posts = {}
 
 async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Привет! Просто отправь мне картинку 📷, и я сделаю пост!")
-
-import os
-
-import os
-
-import os
-from PIL import Image
 
 async def handle_photo(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
@@ -134,7 +139,6 @@ async def post_to_channel(update: Update, context: CallbackContext):
         await update.message.reply_text(f"❌ Ошибка при отправке в канал:\n`{str(e)}`", parse_mode="Markdown")
 
 
-
 async def button_handler(update: Update, context: CallbackContext):
     query = update.callback_query
     _, button_index, user_id = query.data.split("_")
@@ -146,6 +150,11 @@ async def button_handler(update: Update, context: CallbackContext):
 
 
 def main():
+    # Запуск Flask-приложения в другом потоке
+    thread = Thread(target=run_flask)
+    thread.start()
+
+    # Запуск Telegram-бота
     app = Application.builder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
@@ -156,6 +165,6 @@ def main():
     print("Бот запущен...")
     app.run_polling()
 
+
 if __name__ == "__main__":
     main()
-
