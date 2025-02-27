@@ -3,7 +3,9 @@ from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQu
 from io import BytesIO
 from flask import Flask  # Добавляем импорт Flask
 from threading import Thread  # Импорт для запуска Flask в фоновом режиме
+import os
 
+# Создаем Flask приложение
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -11,8 +13,9 @@ def home():
     return "Бот работает!", 200  # Простой маршрут для проверки, что приложение Flask работает
 
 def run_flask():
-    app_flask.run(host="0.0.0.0", port=8080)  # Запуск Flask-приложения на порту 8080
-
+    # Используем переменную окружения PORT, чтобы Flask мог работать с Render
+    port = int(os.environ.get("PORT", 8080))
+    app_flask.run(host="0.0.0.0", port=port)  # Запуск Flask-приложения на порту 8080
 
 TOKEN = "7909781824:AAHi_E5sHVk9n2HwbWUH2rE0AYKLPkL50A8"
 
